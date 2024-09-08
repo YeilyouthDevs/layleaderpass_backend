@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>중직자PASS 메일</title>
+</head>
+
+<body style="padding:0.5rem; max-width: 40rem; margin: 0 auto;">
+    <div style="display: flex; align-items:center; gap:0.25rem; height:3.3rem; margin-bottom:0.5rem">
+        <div style="border-radius:100%; height:3rem; min-height:3rem; min-width:3rem; overflow:hidden; width:3rem">
+            <img src="https://lh3.googleusercontent.com/a/ACg8ocLq2hxniTuBhjancuxR4vW61XVwNi28hRyPC11n9d6a3nvafiI=s288-c-no"
+                alt="로고" style="height:100%; opacity:0.9;">
+        </div>
+        <p style="margin: 0 0 0 0.25rem; color:rgb(56, 56, 56); font-size:2rem; font-weight:bold">중직자PASS</p>
+    </div>
+
+    <div
+        style="background-color:rgb(148, 192, 143); color:white; font-size:1.5rem; font-weight:bold; padding:1rem 1.5rem; text-align:center; text-wrap:pretty">
+        <%= title %>
+    </div>
+
+    <div style="color:rgb(29, 29, 29); font-size:1em; margin:1rem 0; padding:0.5rem">
+        <%- content %>
+    </div>
+
+
+    <% if (typeof link !== 'undefined' && typeof buttonName !== 'undefined') { %>
+
+    <div style="margin: 1rem 0; text-align: center;">
+        <a href="<%= link %>"
+            style="display: block; background-color:rgb(27, 130, 226); border:none; border-radius:0.25rem; color:white; cursor:pointer; font-size:1.4rem; font-weight:bold; padding:0.8rem; margin: 0.25rem auto; width: 90%; cursor: pointer; text-decoration: none;">
+            <%= buttonName %>
+        </a>
+
+        <div style="color:rgb(128, 128, 128); font-size:0.8rem; margin: 1rem 0; text-wrap: pretty;">버튼이 작동하지
+            않는 경우 아래 주소를 복사해 주소창에 붙여넣기 해주세요</div>
+
+        <p style="border: 1px solid gray; border-radius: 0.25rem; display: block; height: auto; width: 95%; margin: 1rem auto; text-align: left; word-break: break-all; font-size: 0.7rem; padding: 0.25rem"><%= link %></p>
+    </div>
+
+    <% } %>
+
+
+
+    <div style="border:1px solid lightgray; border-radius:0.5rem; color:rgb(43, 43, 43); font-size:0.8rem">
+        <ul>
+            <li>본인이 요청한 메일이 아니라면 무시해 주시길 바랍니다.</li>
+            <li>본 메일은 자동발송 되므로 회신 내용이 확인되지 않습니다.</li>
+        </ul>
+    </div>
+</body>
+
+</html>

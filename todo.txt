@@ -1,0 +1,23 @@
+
+[할일]
+
+사용자 정보수정에서 비밀번호 처음부터 체크되어있지 않게 하기 헷갈릴 수 있을듯
+
+시즌 관리에서 날짜입력 시간부분 없애기
+
+시즌 변경하거나 하면 시즌에맞게 등록된 훈련이 보여야하는데 시즌과 관계없이 다 보임. 훈련 리스트 불러올 때 현재시즌까지 고려해야할듯, 달란트 지급내역, 자료제출도 마찬가지 
+
+시즌이 없는상태에서 메뉴바의 달란트 새로고침 작동하면 안됨.
+
+자료제출에 아이콘이미지? (확장자는 png인데 mime type은 아이콘인가봄) 올리면 오류남
+[ERROR] [2024-08-23T10:55:03.796Z] {
+  errUUID: '9985d193-488a-4607-a5b3-c390eb9afb41',
+  timestamp: '2024-08-23T10:55:03.795Z',
+  status: 500
+} Error: Unsupported MIME type: image/x-icon
+    at Jimp.call (/home/yeil_youth/code/backend/node_modules/@jimp/utils/src/index.js:15:13)
+    at Jimp.parseBitmap (/home/yeil_youth/code/backend/node_modules/@jimp/core/src/utils/image-bitmap.js:167:25) {
+  methodName: 'constructor'
+}
+
+[마이그레이션]

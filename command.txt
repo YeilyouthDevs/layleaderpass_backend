@@ -1,0 +1,7 @@
+[마이그레이션 명령어]
+
+마이그레이션 파일 생성
+npx sequelize-cli migration:generate --name add-index-to-training
+
+마이그레이션 실행
+npx sequelize-cli db:migrate --env production

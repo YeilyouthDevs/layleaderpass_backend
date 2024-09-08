@@ -1,0 +1,21 @@
+# npx artillery run ./tests/loadTest.yaml 
+
+config:
+  target: "https://pass.yeilyouth.com"  # Fastify 서버 주소
+  phases:
+    - duration: 30
+      arrivalRate: 20  # 초당 10명의 사용자가 접속
+  cookies:
+    - name: "refreshToken"
+      value: ""  # 실제 세션 토큰 값으로 대체
+scenarios:
+  - flow:
+      - get:
+          url: "/home"
+      - think: 5
+      - get:
+          url: "/staticPage/WhatIsThis"
+      - think: 10
+      - get:
+          url: "/staticPage/HowToUse"
+      - think: 10

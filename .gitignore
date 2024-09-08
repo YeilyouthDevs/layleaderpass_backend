@@ -1,0 +1,7 @@
+/node_modules
+/logs
+/backend-build
+/frontend-build
+/files/data
+/files/temps
+.env

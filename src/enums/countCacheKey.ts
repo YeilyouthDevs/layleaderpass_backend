@@ -1,0 +1,16 @@
+export const CountCacheKey: Record<string, string> = Object.freeze({
+    UNAPPROVED_USER: "UNAPPROVED_USER",
+    APPROVED_USER: "APPROVED_USER",
+    ALL_USER: "ALL_USER",
+    SEASON: "SEASON",
+    TRAINING_TYPE: "TRAINING_TYPE",
+    TRAINING: "TRAINING",
+    NOTICE_COMBINED: "NOTICE_COMBINED",
+    NOTICE_SIGNIFICANT: "NOTICE_SIGNIFICANT",
+    NOTICE_DEFAULT: "NOTICE_DEFAULT",
+    ADMIN_LOG: "ADMIN_LOG"
+})
+
+export type CountCacheKeyType = object;
+
+
