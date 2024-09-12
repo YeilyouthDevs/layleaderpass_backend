@@ -7,6 +7,7 @@ import { Op, Order } from "sequelize";
 import { CountCacheKey } from "@/enums/countCacheKey";
 import { UserRole } from "@/enums/userRole";
 import { Training } from "@/models/training";
+import sequelize from "sequelize";
 
 
 export class TalentAssignmentManageService {
@@ -16,7 +17,9 @@ export class TalentAssignmentManageService {
         const pageData = await Pagination.fetch(TalentAssignment, req.query as PaginationRequest, {
             order: switchAs<Order>(sort, {
                 cases: [
-                    { when: 'oldest', then: [['createdAt', 'ASC']] }
+                    { when: 'oldest', then: [['createdAt', 'ASC']] },
+                    { when: 'userName', then: [[sequelize.col('user.name'), 'ASC']] },
+                    { when: 'trainingName', then: [[sequelize.col('training.title'), 'ASC']] }
                 ],
                 default: [['createdAt', 'DESC']]
             }),
