@@ -10,7 +10,6 @@ import { Training } from "@/models/training";
 
 
 export class TalentAssignmentManageService {
-
     static async getRevokeList(req: FastifyRequest){
         const { sort, searchBy, searchString, searchStartDate, searchEndDate, trainingId } = req.query as any;
 
@@ -35,6 +34,12 @@ export class TalentAssignmentManageService {
                 }),
                 ...setIf(trainingId, {
                     trainingId: trainingId
+                }),
+                ...setIf(searchString && searchBy === 'userEmail', {
+                    userEmail: searchString
+                }),
+                ...setIf(searchString && searchBy === 'granterEmail', {
+                    createdBy: searchString
                 })
             },
             include: [
@@ -45,9 +50,6 @@ export class TalentAssignmentManageService {
                     where: {
                         ...setIf(searchString && searchBy === 'userName', {
                             name: searchString
-                        }),
-                        ...setIf(searchString && searchBy === 'userEmail', {
-                            email: searchString
                         })
                     }
                 },
@@ -58,12 +60,9 @@ export class TalentAssignmentManageService {
                     where: {
                         ...setIf(searchString && searchBy === 'granterName', {
                             name: searchString
-                        }),
-                        ...setIf(searchString && searchBy === 'granterEmail', {
-                            email: searchString
                         })
                     },
-                    required: false
+                    required: !!(searchString && searchBy === 'granterName'), // 조건에 맞는 경우에만 JOIN 
                 },
                 {
                     model: Training,
