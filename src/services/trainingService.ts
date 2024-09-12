@@ -291,4 +291,20 @@ export class TrainingService {
             }
         }
     }
+
+    static async searchTrainingSelector(req: FastifyRequest) {
+        const { trainingTitle } = req.query as any;
+        if (!trainingTitle) return [];
+
+        const trainings = await Training.findAll({
+            attributes: ['id', 'title'],
+            where: {
+                title: {
+                    [Op.like]: `%${trainingTitle}%`
+                }
+            }
+        })
+
+        return trainings;
+    }
 }

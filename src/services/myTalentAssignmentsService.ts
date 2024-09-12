@@ -5,6 +5,7 @@ import { TalentAssignment } from "@/models/talentAssignment";
 import { TalentSum } from "@/models/talentSum";
 import { Training } from "@/models/training";
 import { TrainingType } from "@/models/trainingType";
+import { User } from "@/models/user";
 import { FastifyRequest } from "fastify";
 import { IndexHints, Op, Order } from "sequelize";
 

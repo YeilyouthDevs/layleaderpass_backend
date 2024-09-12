@@ -148,4 +148,22 @@ export function enroll() {
             }
         }
     );
+
+    app.get(
+        "/api/training/selector",
+        {
+            preHandler: [checkSession(), checkRole({ min: UserRole.USER })],
+        },
+        async (req, rep) => {
+            try {
+                const data = await TrainingService.searchTrainingSelector(req);
+                rep.send(data);
+            } catch (error) {
+                ControlledError.catch(rep, error, {
+                    message: "훈련 목록을 불러오는 중 오류가 발생했습니다.",
+                });
+            }
+        }
+    );
+
 }

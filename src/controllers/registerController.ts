@@ -1,3 +1,4 @@
+import { REGISTER_EMAIL_TIMEOUT } from "@/configs/envConfig";
 import { app } from "@/configs/fastifyConfig";
 import { ControlledError } from "@/controlledError";
 import { renderTemplate } from "@/lib/ejs";
@@ -24,8 +25,6 @@ interface RegisterMailData {
     buttonName: string;
     link: string;
 }
-
-const REGISTER_EMAIL_TIMEOUT = 1200;
 
 export function enroll() {
     /**

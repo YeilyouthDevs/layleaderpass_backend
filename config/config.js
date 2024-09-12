@@ -1,4 +1,4 @@
-import { configDotenv } from "dotenv";
+const configDotenv = require('dotenv').configDotenv;
 configDotenv();
 
 const DB_USER = process.env['DB_USER'];

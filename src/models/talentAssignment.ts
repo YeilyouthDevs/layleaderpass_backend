@@ -38,7 +38,7 @@ export function initTalentAssignment(sequelize: Sequelize) {
         createdBy: {
           type: DataTypes.STRING,
           allowNull: false,
-          comment: '지급자 Email'
+          comment: '지급자 Email',
         },
         updatedBy: {
           type: DataTypes.STRING,

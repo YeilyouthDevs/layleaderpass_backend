@@ -8,13 +8,22 @@ import { TalentAssignmentManageService } from "@/services/talentAssignmentManage
 export function enroll() {
 
     app.get(
-        "/api/talentAssignmentManage/list",
+        "/api/talentAssignmentManage/list/:tab",
         {
             preHandler: [checkSession(), checkRole({ min: UserRole.ADMIN })],
         },
         async (req, rep) => {
             try {
-                const pageData = await TalentAssignmentManageService.getList(req)
+                const { tab } = req.params as any;
+
+                let pageData;
+
+                if (tab === 'grant') {
+                    pageData = await TalentAssignmentManageService.getGrantList(req);
+                } else if (tab === 'revoke') {
+                    pageData = await TalentAssignmentManageService.getRevokeList(req);
+                }
+
                 rep.send(pageData)
             } catch (error) {
                 ControlledError.catch(rep, error, {
@@ -31,8 +40,8 @@ export function enroll() {
         },
         async (req, rep) => {
             try {
-                const data = await TalentAssignmentManageService.getSpec(req);
-                rep.send(data)
+                // const data = await TalentAssignmentManageService.getSpec(req);
+                // rep.send(data)
             } catch (error) {
                 ControlledError.catch(rep, error, {
                     message: "달란트 지급 데이터를 가져오는 중 오류 발생",

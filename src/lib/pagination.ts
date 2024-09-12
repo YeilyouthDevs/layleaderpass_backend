@@ -156,4 +156,18 @@ export class Pagination {
             startAt,
         };
     }
+
+    static createEmptyResult(req: PaginationRequest) : PaginationResponse<any> {
+        const startAt = req.startAt ? new Date(req.startAt) : new Date();
+
+        return {
+            data: [],
+            meta: {
+                totalCount: 0,
+                totalPages: 1,
+                currentPage: 1,
+                startAt,
+            }
+        };
+    }
 }

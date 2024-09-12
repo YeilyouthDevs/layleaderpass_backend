@@ -176,39 +176,25 @@ export class UserService {
 
     static async getSelfInfo(email: string, forEdit = false, options?: ServiceOptions) {
         return await Service.handler(options, async (transaction) => {
-            let promises = [];
 
             let attributes;
             if (forEdit) {
                 attributes = ["name", "birthday", "phone"];
             } else {
-                attributes = ["name", "role", "deletedAt", "deleteConfirmAt"];
-
-                promises.push(
-                    TalentService.getSelfTotalTalent(email)
-                );
+                attributes = ["name", "role", 'talent', "deletedAt", "deleteConfirmAt"];
             }
 
-            promises.unshift(
-                User.findByPk(email, {
-                    attributes,
-                    paranoid: false,
-                    transaction,
-                })
-            );
-
-            const [user, totalSum] = await Promise.all(promises);
+            const user = await User.findByPk(email, {
+                attributes,
+                paranoid: false,
+                transaction,
+            })
 
             if (!user){
                 return Service.result({ status: false, message: "존재하지 않는 사용자입니다." });
             }
 
-            const resultUser = {
-                ...(user as User).get({ plain: true }), // Sequelize 모델을 평범한 객체로 변환
-                talent: totalSum, // 추가 속성 포함
-            };
-
-            return Service.result({ status: true, message: "완료", payload: { user: resultUser } });
+            return Service.result({ status: true, message: "완료", payload: { user } });
         })
     }
 

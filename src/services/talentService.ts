@@ -7,6 +7,9 @@ import { TrainingType as TrainingTypeModel } from "@/models/trainingType";
 import { User } from "@/models/user";
 import { IndexHints, Transaction } from "sequelize";
 import { AdminLogService } from "./adminLogService";
+import { sequelize } from "@/configs/sequelizeConfig";
+import { isTest } from "@/configs/envConfig";
+import cron from 'node-cron';
 
 
 export class TalentService {
@@ -36,7 +39,7 @@ export class TalentService {
             const [user, training] = await Promise.all([
                 User.findByPk(userEmail, {
                     lock: Transaction.LOCK.UPDATE,
-                    attributes: ['email', 'name'],
+                    attributes: ['email', 'name', 'talent'],
                     transaction
                 }),
                 Training.findByPk(trainingId, {
@@ -72,9 +75,11 @@ export class TalentService {
     
             const updatedBy = options?.updatedBy || 'SYSTEM';
 
-            let sumPromise = talentSum ?
-                talentSum.update({ sum: talentSum.sum! + amount }, { transaction }) :
-                TalentSum.create({ trainingId, userEmail, sum: amount }, { transaction });
+            let sumPromise = [
+                user.increment('talent', { by: amount, transaction }),
+                talentSum ? talentSum.increment('sum', { by: amount, transaction }) :
+                TalentSum.create({ trainingId, userEmail, sum: amount }, { transaction })
+            ]
 
             const talentAssignment = await TalentAssignment.create({
                     trainingId, 
@@ -151,14 +156,73 @@ export class TalentService {
             const updatedBy = options.updatedBy || 'SYSTEM';
             talentAssignment.updatedBy = updatedBy;
 
+            const amount = talentAssignment.amount;
+
             await Promise.all([
+                user.decrement('talent', { by: amount, transaction }),
                 talentAssignment.destroy({ transaction }),
                 (toBeTalentSum > 0) ? talentSum.save({ transaction }) : talentSum.destroy({ transaction }),
-                AdminLogService.write(AdminLogAction.TALENT_ASSIGNMENT, `달란트[${talentAssignment.id}:+${talentAssignment.amount}] 회수, 사용자[${user.email}:${user.name}] 훈련[${training.id}:${training.title}]`, { updatedBy, transaction })
+                AdminLogService.write(AdminLogAction.TALENT_ASSIGNMENT, `달란트[${talentAssignmentId}:+${amount}] 회수, 사용자[${user.email}:${user.name}] 훈련[${training.id}:${training.title}]`, { updatedBy, transaction })
             ]);
 
-            return Service.result({status: true, id: talentAssignmentId, message: `${user.name} 으로부터 ${talentAssignment.amount} 달란트 회수 완료`});
+            return Service.result({status: true, id: talentAssignmentId, message: `${user.name} 으로부터 ${amount} 달란트 회수 완료`});
         });
     }
+
+    static async syncTalent() {
+        const userBatchSize = 10;
+        let userOffset = 0;
     
+        // 사용자 배치 단위로 talentSum과 User.talent 동기화
+        while (true) {
+            // 사용자 데이터를 배치로 가져옴
+            const users = await User.findAll({
+                limit: userBatchSize,
+                offset: userOffset,
+                attributes: ['email']  // 필요한 필드만 가져옴
+            });
+            if (users.length === 0) break;  // 더 이상 사용자가 없으면 종료
+    
+            const userEmails = users.map(user => user.email);
+    
+            // 각 사용자에 대한 talentSum의 합계를 계산
+            const talentSums = await TalentSum.findAll({
+                where: {
+                    userEmail: userEmails
+                },
+                attributes: ['userEmail', [sequelize.fn('SUM', sequelize.col('sum')), 'totalTalent']],  // 각 사용자의 sum 합계 계산
+                group: ['userEmail'],
+                raw: true
+            });
+    
+            // 사용자들의 talentSum 총합을 기반으로 비동기 병렬로 User의 talent 업데이트
+            await Promise.all(talentSums.map(async (talentSum: any) => {
+                await User.update(
+                    { talent: talentSum.totalTalent },  // talent 필드에 합산된 값 업데이트
+                    { where: { email: talentSum.userEmail } }
+                );
+            }));
+    
+            // 다음 사용자 배치로 넘어가기
+            userOffset += userBatchSize;
+        }
+    }
 }
+
+// 달란트 동기화 크론
+if (!isTest){
+    cron.schedule(
+      "0 0 * * *", // 매일 자정에 실행
+      async () => {
+        try {
+            await TalentAssignment.sync();    
+        } catch (error) {
+            console.error('달란트 동기화 예약작업 실패', error);
+        }
+      },
+      {
+        scheduled: true,
+        timezone: "Asia/Seoul",
+      }
+    );
+  }

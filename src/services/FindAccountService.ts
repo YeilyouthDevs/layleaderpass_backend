@@ -1,3 +1,4 @@
+import { REGISTER_EMAIL_TIMEOUT } from "@/configs/envConfig";
 import { redisInst } from "@/configs/redisConfig";
 import { ControlledError } from "@/controlledError";
 import { renderTemplate } from "@/lib/ejs";
@@ -55,7 +56,7 @@ export class FindAccountService {
             })
 
             let token: string | null = null;
-            const timeout = parseInt(process.env.REGISTER_EMAIL_TIMEOUT!);
+            const timeout = REGISTER_EMAIL_TIMEOUT;
 
             if (user) {
                 //토큰 발급

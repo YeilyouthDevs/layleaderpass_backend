@@ -19,6 +19,7 @@ export class User extends Model {
   declare phone?: string | null;
   declare birthday?: Date | null;
   declare role: UserRole;
+  declare talent: number;
   declare deleteConfirmAt?: Date | null;
   declare isDeleted: boolean | null;
   declare updatedBy?: string;
@@ -62,6 +63,11 @@ export function initUser(sequelize: Sequelize) {
           values: Object.values(UserRole),
           defaultValue: UserRole.GUEST,
           comment: "역할(등급)",
+        },
+        talent: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0,
+          comment: '현재 시즌 총 달란트 캐싱'
         },
         isDeleted: {
           type: DataTypes.BOOLEAN,

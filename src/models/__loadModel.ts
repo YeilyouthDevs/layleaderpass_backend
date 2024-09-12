@@ -52,6 +52,7 @@ function setupRelations() {
 
     // TalentAssignment 관계 설정
     TalentAssignment.belongsTo(User, { foreignKey: 'userEmail', as: 'user' });
+    TalentAssignment.belongsTo(User, { foreignKey: 'createdBy', as: 'creater' });
     TalentAssignment.belongsTo(Training, { foreignKey: 'trainingId', as: 'training' });
 
     // TalentSum 관계 설정

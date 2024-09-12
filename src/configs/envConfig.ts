@@ -52,5 +52,13 @@ export const TEST_FILE_BASE_DEFAULT = loadEnvField('TEST_FILE_BASE_DEFAULT');
 export const DEV_ID = loadEnvField('DEV_ID');
 export const DEV_PW = loadEnvField('DEV_PW');
 
+export const AUTOLOGIN_TIMEOUT = parseInt(loadEnvField('AUTOLOGIN_TIMEOUT'));
+export const REFRESH_TIMEOUT = parseInt(loadEnvField('REFRESH_TIMEOUT'));
+export const ACCESS_TIMEOUT = parseInt(loadEnvField('ACCESS_TIMEOUT'));
+export const LOGOUT_PROTECT_TIMEOUT = parseInt(loadEnvField('LOGOUT_PROTECT_TIMEOUT'));
+export const MAX_SESSION_COUNT = parseInt(loadEnvField('MAX_SESSION_COUNT'));
+export const REGISTER_EMAIL_TIMEOUT = parseInt(loadEnvField('REGISTER_EMAIL_TIMEOUT'));
+
+
 
 

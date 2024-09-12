@@ -11,6 +11,7 @@ import { TalentService } from "../services/talentService";
 import { ServiceOptions } from "@/lib/service";
 import { sequelize } from "@/configs/sequelizeConfig";
 import { formatDatetime } from "@/lib/date";
+import { ACCESS_TIMEOUT, AUTOLOGIN_TIMEOUT, LOGOUT_PROTECT_TIMEOUT, MAX_SESSION_COUNT, REFRESH_TIMEOUT } from "@/configs/envConfig";
 
 export interface AccessTokenClaim extends JwtPayload {
     email: string;
@@ -20,13 +21,6 @@ export interface RefreshTokenClaim extends JwtPayload {
     email: string;
     uuid: string;
 }
-
-// 환경 변수로부터 시간 제한 설정
-const AUTOLOGIN_TIMEOUT = 31557600; //1년
-const REFRESH_TIMEOUT = 3600;
-const ACCESS_TIMEOUT = 1200;
-const LOGOUT_PROTECT_TIMEOUT = 300;
-const MAX_SESSION_COUNT = 3;
 
 export class Session {
     // 세션 키 생성
@@ -56,29 +50,14 @@ export class Session {
 
     // 사용자 정보 가져오기
     private static async getUser(email: string, options?: ServiceOptions) {
-        const transaction = options?.transaction || await sequelize.transaction();
+        const user = await User.findByPk(email, {
+            attributes: ['email', 'name', 'password', 'role', 'talent', 'deletedAt', 'deleteConfirmAt', 'isDeleted'],
+            paranoid: false,
+            raw: true
+        });
 
-        try {
-            const user = await User.findByPk(email, {
-                attributes: ['email', 'name', 'password', 'role', 'deletedAt', 'deleteConfirmAt', 'isDeleted'],
-                paranoid: false,
-                transaction,
-            });
-
-            if (!user) return null;
-
-            const totalSum = await TalentService.getSelfTotalTalent(email);
-
-            const resultUser = {
-                ...user.get({ plain: true }), // Sequelize 모델을 평범한 객체로 변환
-                talent: totalSum, // 추가 속성 포함
-            };
-
-            if (!options?.transaction) await transaction.commit();
-            return resultUser;
-        } catch (error) {
-            if (!options?.transaction) await transaction.rollback();
-        }
+        if (!user) return null;
+        return user;
     }
 
     // 로그인 처리
