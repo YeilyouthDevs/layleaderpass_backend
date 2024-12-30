@@ -154,7 +154,7 @@ export class SubmissionManageService {
 
             ensureNotEmpty([id, targetEmail, trainingId, amount, updatedBy]);
 
-            const talentAssignmentResult = await TalentService.grant(targetEmail, trainingId, amount, { transaction, updatedBy: options?.updatedBy });
+            const talentAssignmentResult = await TalentService.grant(targetEmail, trainingId, amount, { transaction, updatedBy });
 
             if (!talentAssignmentResult.status) {
                 throw new ControlledError({
@@ -207,9 +207,9 @@ export class SubmissionManageService {
     static async revoke(req: FastifyRequest, options?: ServiceOptions) {
         return await Service.handler(options, async (transaction) => {
             const { id } = req.body as any;
-            const { email } = req.headers as any;
+            const { email: updatedBy } = req.headers as any;
 
-            ensureNotEmpty([id, email]);
+            ensureNotEmpty([id, updatedBy]);
 
             const userSubmission = await UserSubmission.findByPk(id, { transaction });
 
@@ -225,7 +225,7 @@ export class SubmissionManageService {
             userSubmission.talentAssignmentId = null;
 
             await userSubmission.save({ transaction });
-            if (talentAssignmentId) await TalentService.revoke(talentAssignmentId, { transaction, updatedBy: options?.updatedBy });
+            if (talentAssignmentId) await TalentService.revoke(talentAssignmentId, { transaction, updatedBy });
 
             return Service.result({ status: true, message: '승인 철회되었습니다.' });
         })

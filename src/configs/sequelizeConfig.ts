@@ -12,25 +12,24 @@ export let sequelize = new Sequelize(DB_NAME, DB_USER, DB_PW, {
     timezone: "+09:00",
     ...setIf(isProduct, {
         pool: {
-            max: 100,
-            min: 20,
-            evict: 10000,
-            idle: 5000,
-            acquire: 40000,
+        max: 80,           // 최대 연결 수
+        min: 0,            // 최소 연결 수
+        idle: 60000,       // 유휴 시간: 60초
+        evict: 90000,      // 유휴 연결 검사 주기: 90초
+        acquire: 40000,    // 연결 획득 타임아웃: 40초
             validate: (client: any) => {
-                // 커넥션 객체가 존재하고 상태가 "disconnected"가 아닌 경우 유효한 커넥션으로 간주
-                if (
-                    typeof client !== "object" ||
-                    client === null ||
-                    client.state === "disconnected"
-                ) {
-                    return false;
-                }
-
-                return true; // 커넥션이 유효하면 true 반환
-            },
+                return client && client.connection && client.connection.stream && !client.connection.stream.destroyed;
+            }
         },
+        dialectOptions: {
+            enableKeepAlive: true,
+            keepAliveInitialDelay: 0
+        },
+        retry: {
+            max: 3
+        }
     }),
+
 });
 
 export async function connectDatabase() {

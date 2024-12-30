@@ -133,4 +133,38 @@ export function enroll() {
         }
     })
 
+    app.get(
+        "/api/user/selector",
+        {
+            preHandler: [checkSession(), checkRole({ min: UserRole.USER })],
+        },
+        async (req, rep) => {
+            try {
+                const data = await UserService.searchUserSelector(req);
+                rep.send(data);
+            } catch (error) {
+                ControlledError.catch(rep, error, {
+                    message: "사용자 목록을 불러오는 중 오류가 발생했습니다.",
+                });
+            }
+        }
+    );
+
+    app.get(
+        "/api/user/getAcceptNo",
+        {
+            preHandler: [checkSession(), checkRole({ min: UserRole.USER })],
+        },
+        async (req, rep) => {
+            try {
+                const data = await UserService.getAcceptNo(req);
+                rep.send(data);
+            } catch (error) {
+                ControlledError.catch(rep, error, {
+                    message: "사용자의 가입승인번호를 불러오는 중 오류가 발생했습니다.",
+                });
+            }
+        }
+    );
+
 }

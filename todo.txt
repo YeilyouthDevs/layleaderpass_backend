@@ -1,6 +1,12 @@
 
 [할일]
-
+달란트지급관리
+  - 기존 지급 탭을 훈련기준 지급으로 변경하고 사용자기준 지급 탭 추가하기
+  - 사용자기준 지급 탭에서는 훈련목록을 보여주고, 사용자선택기를 검색옵션에 추가하기
+    -- 훈련목록에는 훈련이름, 기간, 최대최소 달란트양, 해당훈련에서 사용자가 얼마 획득했는지도 나오면 좋긴할듯
+  - 작업메뉴 추가하기
+  - 승인 탭에서 승인누르면 어느 훈련을통해 몇 달란트 지급할지 보여주는 모달 띄우기, 모달에는 훈련/훈련타입 정보도 표시되어야 함
+  - 승인 / 회수 서비스 로직 만들기
 
 사용자 정보수정에서 비밀번호 처음부터 체크되어있지 않게 하기 헷갈릴 수 있을듯
 
@@ -21,4 +27,106 @@
   methodName: 'constructor'
 }
 
+
+
+
+
 [마이그레이션]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[나중에 확인해볼것]
+
+* 아래내용은 우선 sequelizeConfig을 조정했으니 다시 문제가 발생하지않는지 지켜볼 필요가 있다.
+
+자꾸 DB연결이 끊긴다??
+
+예약작업 실패 왜? 예상이유는 DB연결이 끊긴상태라서?
+
+[ERROR] [2024-09-14T15:00:00.761Z] 달란트 동기화 예약작업 실패
+[ERROR] [2024-09-14T15:00:00.761Z] {"name":"SequelizeDatabaseError","parent":{"fatal":true,"sql":"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'talent_assignment' AND TABLE_SCHEMA = 'layleaderpass'"},"original":{"fatal":true,"sql":"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'talent_assignment' AND TABLE_SCHEMA = 'layleaderpass'"},"sql":"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'talent_assignment' AND TABLE_SCHEMA = 'layleaderpass'","parameters":{}}
+Error
+    at Query.run (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+    at /home/yeil_youth/code/backend/node_modules/sequelize/lib/sequelize.js:315:28
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at listOnTimeout (node:internal/timers:540:9)
+    at process.processTimers (node:internal/timers:514:7)
+    at async MySQLQueryInterface.tableExists (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/abstract/query-interface.js:102:17)
+    at async TalentAssignment.sync (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:939:21)
+    at async node_cron_1.default.schedule.scheduled [as _execution] (/home/yeil_youth/code/backend/backend-build/services/talentService.js:193:13)
+
+
+로그인도 안되는상황;; 서버 껏다키니까 바로 된다
+
+0|production  | [REQUEST] [2024-09-15T10:33:12.197Z] POST /api/session/signin {
+0|production  |   id: 'req-c9',
+0|production  |   ip: '121.178.6.30',
+0|production  |   brw: 'Chrome 128.0.0.0',
+0|production  |   os: 'Windows 10'
+0|production  | }
+0|production  | [ERROR] [2024-09-15T10:33:12.537Z] {
+0|production  |   errUUID: '7955759c-f3e9-4c45-afc9-f7b8d81c91d8',
+0|production  |   timestamp: '2024-09-15T10:33:12.536Z',
+0|production  |   status: 500
+0|production  | } Error
+0|production  |     at Query.run (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+0|production  |     at /home/yeil_youth/code/backend/node_modules/sequelize/lib/sequelize.js:315:28
+0|production  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|production  |     at async MySQLQueryInterface.select (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+0|production  |     at async User.findAll (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1140:21)
+0|production  |     at async User.findOne (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1240:12)
+0|production  |     at async User.findByPk (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1221:12)
+0|production  |     at async Session.getUser (/home/yeil_youth/code/backend/backend-build/lib/session.js:44:22)
+0|production  |     at async Session.signIn (/home/yeil_youth/code/backend/backend-build/lib/session.js:55:22)
+0|production  |     at async Object.<anonymous> (/home/yeil_youth/code/backend/backend-build/controllers/sessionController.js:30:54) {
+0|production  |   name: 'SequelizeDatabaseError',
+0|production  |   parent: Error: Can't add new command when connection is in closed state
+0|production  |       at Connection._addCommandClosedState (/home/yeil_youth/code/backend/node_modules/mysql2/lib/connection.js:164:17)
+0|production  |       at Connection.query (/home/yeil_youth/code/backend/node_modules/mysql2/lib/connection.js:575:17)
+0|production  |       at results (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:60:22)
+0|production  |       at new Promise (<anonymous>)
+0|production  |       at Query.run (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:59:25)
+0|production  |       at /home/yeil_youth/code/backend/node_modules/sequelize/lib/sequelize.js:315:28
+0|production  |       at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|production  |       at async MySQLQueryInterface.select (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+0|production  |       at async User.findAll (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1140:21)
+0|production  |       at async User.findOne (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1240:12) {
+0|production  |     fatal: true,
+0|production  |     sql: "SELECT `email`, `name`, `password`, `role`, `talent`, `deletedAt`, `deleteConfirmAt`, `isDeleted` FROM `user` AS `User` WHERE `User`.`email` = 'layleaderpass.devs@gmail.com';",
+0|production  |     parameters: undefined
+0|production  |   },
+0|production  |   original: Error: Can't add new command when connection is in closed state
+0|production  |       at Connection._addCommandClosedState (/home/yeil_youth/code/backend/node_modules/mysql2/lib/connection.js:164:17)
+0|production  |       at Connection.query (/home/yeil_youth/code/backend/node_modules/mysql2/lib/connection.js:575:17)
+0|production  |       at results (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:60:22)
+0|production  |       at new Promise (<anonymous>)
+0|production  |       at Query.run (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/mysql/query.js:59:25)
+0|production  |       at /home/yeil_youth/code/backend/node_modules/sequelize/lib/sequelize.js:315:28
+0|production  |       at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|production  |       at async MySQLQueryInterface.select (/home/yeil_youth/code/backend/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+0|production  |       at async User.findAll (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1140:21)
+0|production  |       at async User.findOne (/home/yeil_youth/code/backend/node_modules/sequelize/lib/model.js:1240:12) {
+0|production  |     fatal: true,
+0|production  |     sql: "SELECT `email`, `name`, `password`, `role`, `talent`, `deletedAt`, `deleteConfirmAt`, `isDeleted` FROM `user` AS `User` WHERE `User`.`email` = 'layleaderpass.devs@gmail.com';",
+0|production  |     parameters: undefined
+0|production  |   },
+0|production  |   sql: "SELECT `email`, `name`, `password`, `role`, `talent`, `deletedAt`, `deleteConfirmAt`, `isDeleted` FROM `user` AS `User` WHERE `User`.`email` = 'layleaderpass.devs@gmail.com';",
+0|production  |   parameters: {}
+0|production  | }
+0|production  | [RESPONSE] [2024-09-15T10:33:12.537Z] POST /api/session/signin { id: 'req-c9', status: 500, el: 340.3 }
+

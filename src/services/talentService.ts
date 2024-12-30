@@ -170,41 +170,57 @@ export class TalentService {
     }
 
     static async syncTalent() {
-        const userBatchSize = 10;
-        let userOffset = 0;
-    
-        // 사용자 배치 단위로 talentSum과 User.talent 동기화
-        while (true) {
-            // 사용자 데이터를 배치로 가져옴
-            const users = await User.findAll({
-                limit: userBatchSize,
-                offset: userOffset,
-                attributes: ['email']  // 필요한 필드만 가져옴
-            });
-            if (users.length === 0) break;  // 더 이상 사용자가 없으면 종료
-    
-            const userEmails = users.map(user => user.email);
-    
-            // 각 사용자에 대한 talentSum의 합계를 계산
-            const talentSums = await TalentSum.findAll({
-                where: {
-                    userEmail: userEmails
-                },
-                attributes: ['userEmail', [sequelize.fn('SUM', sequelize.col('sum')), 'totalTalent']],  // 각 사용자의 sum 합계 계산
-                group: ['userEmail'],
-                raw: true
-            });
-    
-            // 사용자들의 talentSum 총합을 기반으로 비동기 병렬로 User의 talent 업데이트
-            await Promise.all(talentSums.map(async (talentSum: any) => {
-                await User.update(
-                    { talent: talentSum.totalTalent },  // talent 필드에 합산된 값 업데이트
-                    { where: { email: talentSum.userEmail } }
-                );
-            }));
-    
-            // 다음 사용자 배치로 넘어가기
-            userOffset += userBatchSize;
+        const transaction = await sequelize.transaction();
+
+        try {
+            const userBatchSize = 10;
+            let userOffset = 0;
+        
+            // 사용자 배치 단위로 talentSum과 User.talent 동기화
+            while (true) {
+                // 사용자 데이터를 배치로 가져옴
+                const users = await User.findAll({
+                    limit: userBatchSize,
+                    offset: userOffset,
+                    attributes: ['email'],  // 필요한 필드만 가져옴
+                    lock: Transaction.LOCK.UPDATE,
+                    transaction
+                });
+                if (users.length === 0) break;  // 더 이상 사용자가 없으면 종료
+        
+                const userEmails = users.map(user => user.email);
+        
+                // 각 사용자에 대한 talentSum의 합계를 계산
+                const talentSums = await TalentSum.findAll({
+                    where: {
+                        userEmail: userEmails
+                    },
+                    attributes: ['userEmail', [sequelize.fn('SUM', sequelize.col('sum')), 'totalTalent']],  // 각 사용자의 sum 합계 계산
+                    group: ['userEmail'],
+                    lock: Transaction.LOCK.UPDATE,
+                    transaction,
+                    raw: true
+                });
+        
+                // 사용자들의 talentSum 총합을 기반으로 비동기 병렬로 User의 talent 업데이트
+                await Promise.all(talentSums.map(async (talentSum: any) => {
+                    await User.update(
+                        { talent: talentSum.totalTalent },  // talent 필드에 합산된 값 업데이트
+                        { 
+                            where: { email: talentSum.userEmail },
+                            transaction
+                        }
+                    );
+                }));
+        
+                // 다음 사용자 배치로 넘어가기
+                userOffset += userBatchSize;
+            }
+
+            await transaction.commit();
+        } catch(error) {
+            await transaction.rollback();
+            throw error;
         }
     }
 }

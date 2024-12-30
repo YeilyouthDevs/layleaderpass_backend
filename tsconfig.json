@@ -12,7 +12,7 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*", "backend-build/*"]
     }
   },
   "include": ["src/**/*", "src/scripts"],

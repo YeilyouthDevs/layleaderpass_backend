@@ -3,11 +3,13 @@ import { setIf, switchAs } from "@/lib/queryTools";
 import { TalentAssignment } from "@/models/talentAssignment";
 import { User } from "@/models/user";
 import { FastifyRequest } from "fastify";
-import { Op, Order } from "sequelize";
+import { Op, Order, where } from "sequelize";
 import { CountCacheKey } from "@/enums/countCacheKey";
 import { UserRole } from "@/enums/userRole";
 import { Training } from "@/models/training";
 import sequelize from "sequelize";
+import { TalentSum } from "@/models/talentSum";
+import { TrainingType } from "@/models/trainingType";
 
 
 export class TalentAssignmentManageService {
@@ -58,7 +60,7 @@ export class TalentAssignmentManageService {
                 },
                 {
                     model: User,
-                    as: 'creater',
+                    as: 'creator',
                     attributes: ['email', 'name'],
                     where: {
                         ...setIf(searchString && searchBy === 'granterName', {
@@ -78,14 +80,14 @@ export class TalentAssignmentManageService {
         return pageData;
     }
 
-    static async getGrantList(req: FastifyRequest) {
-        const { sort, searchBy, searchString } = req.query as any;
+    static async getByTrainList(req: FastifyRequest) {
+        const { sort, searchBy, searchString, trainingId } = req.query as any;
     
         const pageData = await Pagination.fetch(User, req.query as PaginationRequest, {
             countCacheKey: (searchString && searchBy) ? undefined : CountCacheKey.APPROVED_USER,
             order: switchAs<Order>(sort, {
                 cases: [
-                    { when: 'talent', then: [['talent', 'DESC'], ['name', 'ASC']] }
+                    { when: 'talent', then:  [['talent', 'DESC'], ['name', 'ASC']] },
                 ],
                 default: [['name', 'ASC']]
             }),
@@ -93,7 +95,7 @@ export class TalentAssignmentManageService {
                 'email', 
                 'name', 
                 'birthday',
-                'talent',
+                'talent'
             ],
             where: {
                 role: {
@@ -104,16 +106,56 @@ export class TalentAssignmentManageService {
                         [Op.like]: `%${searchString}%`
                     }
                 })
-            }
+            },
+            ...setIf(trainingId, {
+                include: [
+                    {
+                        model: TalentSum,
+                        as: 'talentSums',
+                        attributes: ['sum'], //TODO ???? sum값을 합치지도 않았는데 합쳐져서 나온다... 이게 왜 되는거지 상황.. 알아보기..
+                        where: {
+                            trainingId
+                        },
+                        required: false
+                    }
+                ],
+            }),
+            raw: true,
+            nest: true,
         });
-    
+
         return pageData;
     }
+
+    static async getByUserList(req: FastifyRequest) {
+        const { sort, searchBy, searchString, userEmail } = req.query as any;
     
-    
-    
-    
-    
+        const pageData = await Pagination.fetch(Training, req.query as PaginationRequest, {
+            countCacheKey: (searchString && searchBy) ? undefined : CountCacheKey.TRAINING,
+            order: switchAs<Order>(sort, {
+                cases: [
+                    // { when: 'talent', then:  [['talent', 'DESC'], ['name', 'ASC']] },
+                ],
+                default: [['title', 'ASC']]
+            }),
+            attributes: [
+                'id',
+                'title', 
+                'startAt', 
+                'endAt',
+            ],
+            where: {
+                ...setIf(searchBy === "title", {
+                    title: {
+                        [Op.like]: `%${searchString}%`,
+                    },
+                })
+            }
+        });
+
+        return pageData;
+    }
+
     
 
     // static async getSpec(req: FastifyRequest){

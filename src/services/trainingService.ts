@@ -21,13 +21,6 @@ export class TrainingService {
         const { sort, searchBy, searchString } = req.query as any;
         const { tab } = req.params as any;
 
-        switchAs<Order>(sort, {
-            cases: [
-                { when: "abc", then: [['title', 'ASC'], ['startAt', 'DESC'], ['endAt', 'DESC']] }
-            ],
-            default: [["startAt", "DESC"], ["endAt", "DESC"]]
-        })
-
         const now = new Date();
         now.setSeconds(0);
 
@@ -297,7 +290,7 @@ export class TrainingService {
         if (!trainingTitle) return [];
 
         const trainings = await Training.findAll({
-            attributes: ['id', 'title'],
+            attributes: ['id', 'trainingTypeId', 'title'],
             where: {
                 title: {
                     [Op.like]: `%${trainingTitle}%`

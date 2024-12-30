@@ -18,8 +18,10 @@ export function enroll() {
 
                 let pageData;
 
-                if (tab === 'grant') {
-                    pageData = await TalentAssignmentManageService.getGrantList(req);
+                if (tab === 'byTrain') {
+                    pageData = await TalentAssignmentManageService.getByTrainList(req);
+                } else if (tab === 'byUser') {
+                    pageData = await TalentAssignmentManageService.getByUserList(req);
                 } else if (tab === 'revoke') {
                     pageData = await TalentAssignmentManageService.getRevokeList(req);
                 }

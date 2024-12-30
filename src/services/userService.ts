@@ -5,7 +5,7 @@ import { UserRole } from "@/enums/userRole";
 import { formatDatetime, getAfterMidnight } from "@/lib/date";
 import { renderTemplate } from "@/lib/ejs";
 import { Pagination, PaginationRequest } from "@/lib/pagination";
-import { switchAs } from "@/lib/queryTools";
+import { setIf, switchAs } from "@/lib/queryTools";
 import {
     Service,
     ServiceOptions,
@@ -26,6 +26,8 @@ import { TalentSum } from "@/models/talentSum";
 import { TalentAssignment } from "@/models/talentAssignment";
 import { UserSubmission } from "@/models/userSubmission";
 import { FileProcessor } from "@/lib/FileManager/FileProcessor";
+import { Op } from "sequelize";
+import { ensureNotEmpty } from "@/lib/validation";
 export class UserService {
     static async getList(req: FastifyRequest) {
         const { sort } = req.query as any;
@@ -447,5 +449,40 @@ export class UserService {
                 return Service.result({ status: true, id: email, message: '복원 완료' });
             }
         );
+    }
+
+    static async searchUserSelector(req: FastifyRequest) {
+        const { searchBy, searchString } = req.query as any;
+        if (!searchBy || !searchString) return [];
+
+        const users = await User.findAll({
+            attributes: ['email', 'name', 'birthday'],
+            where: {
+                ...setIf(searchString && searchBy === 'name', {
+                    name: {
+                        [Op.like]: `%${searchString}%`    
+                    }
+                }),
+                ...setIf(searchString && searchBy === 'email', {
+                    email: {
+                        [Op.like]: `%${searchString}%`    
+                    }
+                })
+            }
+        })
+
+        return users;
+    }
+
+    static async getAcceptNo(req: FastifyRequest) {
+        const { email } = req.headers as any;
+        ensureNotEmpty([email]);
+
+        const user = await User.findByPk(email, {
+            attributes: ['acceptNo']
+        })
+
+        if (!user) throw new Error('사용자가 존재하지 않음');
+        return user.acceptNo;
     }
 }

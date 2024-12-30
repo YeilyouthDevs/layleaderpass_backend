@@ -52,7 +52,7 @@ function setupRelations() {
 
     // TalentAssignment 관계 설정
     TalentAssignment.belongsTo(User, { foreignKey: 'userEmail', as: 'user' });
-    TalentAssignment.belongsTo(User, { foreignKey: 'createdBy', as: 'creater' });
+    TalentAssignment.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
     TalentAssignment.belongsTo(Training, { foreignKey: 'trainingId', as: 'training' });
 
     // TalentSum 관계 설정
@@ -67,6 +67,8 @@ function setupRelations() {
     // FileSet 관계 설정
     FileSet.hasMany(File, { foreignKey: 'fileSetId', as: 'files' });
     FileSet.belongsTo(Notice, { foreignKey: 'fileSetId', targetKey: 'id', as: 'notice' });
+    
+    //FIXME FileSet - Training 이 없음?
 
     // File 관계 설정
     File.belongsTo(FileSet, { foreignKey: 'fileSetId', as: 'fileSet' });
