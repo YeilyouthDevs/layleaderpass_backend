@@ -132,7 +132,7 @@ export class TrainingTypeService {
                 }),
                 AdminLogService.write(
                     AdminLogAction.TRAINING_TYPE_MANAGE,
-                    `훈련타입[${updated.id}:${
+                    `훈련타입[${original.id}:${
                         updated.name || original.name
                     }] 수정`,
                     { transaction, updatedBy: updated.updatedBy }
