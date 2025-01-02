@@ -81,7 +81,7 @@ export function enroll(){
             const { email: createdBy } = req.headers as any;
             ensureNotEmpty([createdBy]);
 
-            if (createdBy !== process.env.SU_ID) throw new Error('개발자 계정이 아님');
+            if (createdBy !== process.env.DEV_ID) throw new Error('개발자 계정이 아님');
 
             await fileProcessor.finish();
             await transaction.commit();
